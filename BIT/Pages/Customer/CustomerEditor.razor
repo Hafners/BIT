@@ -1,0 +1,58 @@
+﻿@using BIT.Data
+@using BIT.Services
+
+@inject CustomerService _CustomerService
+
+<h3>CustomerEditor</h3>
+
+<form>
+    <div class="mb-3">
+        <label for="idInput" class="form-label">Id</label>
+        <input type="number" class="form-control" id="idInput" @bind="Customer.Id">
+    </div>
+    <div class="mb-3">
+        <label for="customerNumberInput" class="form-label">Kundennummer</label>
+        <input type="number" class="form-control" id="customerNumberInput" @bind="Customer.CustomerNumber">
+    </div>
+    <div class="mb-3">
+        <label for="nameInput" class="form-label">Name</label>
+        <input type="text" class="form-control" id="nameInput" @bind="Customer.Name">
+    </div
+    <div class="mb-3">
+        <label for="cityInput" class="form-label">Ort</label>
+        <input type="text" class="form-control" id="cityInput" @bind="Customer.City">
+    </div>
+    <div class="mb-3">
+        <label for="streetInput" class="form-label">Straße</label>
+        <input type="text" class="form-control" id="streetInput" @bind="Customer.Street">
+    </div>
+    <div class="mb-3">
+        <label for="zipcodeInput" class="form-label">Postleitzahl</label>
+        <input type="text" class="form-control" id="zipcodeInput" @bind="Customer.Zipcode">
+    </div>    
+    <button class="btn btn-dark" @onclick="@(async()=> await SaveCustomer())">Anlegen </button>
+    <button class="btn btn-light" @onclick="Cancel">Cancel</button>
+</form>
+
+@code {
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter] public int? CustomerId { get; set; }
+
+    private CustomerItem Customer;
+
+    protected override void OnInitialized()
+    {
+        if(CustomerId != null){
+            Customer = _CustomerService.GetCustomer((int)CustomerId);
+        }else{
+            Customer = new CustomerItem();
+        }
+    }
+
+    private async Task SaveCustomer() 
+    {
+        await BlazoredModal.CloseAsync(ModalResult.Ok(Customer));
+    }
+    private async Task Cancel() => await BlazoredModal.CancelAsync();
+}

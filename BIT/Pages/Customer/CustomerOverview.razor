@@ -1,0 +1,67 @@
+﻿@page "/customer-overview"
+@using BIT.Data
+@using BIT.Services
+@inject CustomerService _CustomerService 
+
+<h3>CustomerOverview</h3>
+
+<div class="container">
+    <div class="row">
+        <button type="button" class="btn btn-dark" @onclick="@(async () => await CreateCustomer())">Kunde hinzufügen</button>
+    </div>
+    <div class="row">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Kundennr.</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Ort</th>
+                    <th scope="col">Postleitzahl</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (CustomerItem customer in _CustomerService.Customers)
+                {
+                    <tr>
+                        <td>@customer.CustomerNumber</td>
+                        <td>@customer.Name</td>
+                        <td>@customer.City</td>
+                        <td>@customer.Zipcode</td>
+                        <td> <button type="button" class="btn btn-dark" @onclick="@(async () => await EditCustomer(customer.Id))">Bearbeiten</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+@code {
+    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+
+    private async Task CreateCustomer(){
+        var modalReference = Modal.Show<CustomerEditor>("Kundenanlage");
+        var result = await modalReference.Result;
+
+        if (!result.Cancelled)
+        {
+            _CustomerService.AddCustomer((CustomerItem)result.Data!);
+            StateHasChanged();
+        }
+    }
+
+    private async Task EditCustomer(int customerId){
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(CustomerEditor.CustomerId), customerId);
+
+        var modalReference = Modal.Show<CustomerEditor>("Kundenanlage", parameters);
+        var result = await modalReference.Result;
+
+        if (!result.Cancelled)
+        {
+            _CustomerService.UpdateCustomer((CustomerItem)result.Data!);
+            StateHasChanged();
+        }
+    }
+}
