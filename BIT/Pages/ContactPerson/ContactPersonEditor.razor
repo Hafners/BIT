@@ -1,0 +1,62 @@
+﻿@using BIT.Data
+@using BIT.Services
+
+@inject ContactPersonService _ContactPersonService
+
+<h3>ContactPersonEditor</h3>
+
+<form>
+    <div class="mb-3">
+        <label for="idInput" class="form-label">Id</label>
+        <input type="number" class="form-control" id="idInput" @bind="ContactPerson.Id">
+    </div>
+    <div class="mb-3">
+        <label for="countryInput" class="form-label">Country</label>
+        <input type="number" class="form-control" id="countryInput" @bind="ContactPerson.Country">
+    </div>
+    <div class="mb-3">
+        <label for="firstnameInput" class="form-label">FirstName</label>
+        <input type="text" class="form-control" id="firstnameInput" @bind="ContactPerson.FirstName">
+    </div>
+    <div class="mb-3">
+        <label for="lastnameInput" class="form-label">LastName</label>
+        <input type="text" class="form-control" id="lastnameInput" @bind="ContactPerson.LastName">
+    </div>
+    <div class="mb-3">
+        <label for="cityInput" class="form-label">Ort</label>
+        <input type="text" class="form-control" id="cityInput" @bind="ContactPerson.City">
+    </div>
+    <div class="mb-3">
+        <label for="streetInput" class="form-label">Straße</label>
+        <input type="text" class="form-control" id="streetInput" @bind="ContactPerson.Street">
+    </div>
+    <div class="mb-3">
+        <label for="zipcodeInput" class="form-label">Postleitzahl</label>
+        <input type="text" class="form-control" id="zipcodeInput" @bind="ContactPerson.Zipcode">
+    </div>    
+    <button class="btn btn-dark" @onclick="@(async()=> await SaveContactPerson())">Anlegen </button>
+    <button class="btn btn-light" @onclick="Cancel">Cancel</button>
+</form>
+
+@code {
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter] public int? ContactPersonId { get; set; }
+
+    private ContactPersonItem ContactPerson;
+
+    protected override void OnInitialized()
+    {
+        if(ContactPersonId != null){
+            ContactPerson = _ContactPersonService.GetContactPerson((int)ContactPersonId);
+        }else{
+            ContactPerson = new ContactPersonItem();
+        }
+    }
+
+    private async Task SaveContactPerson() 
+    {
+        await BlazoredModal.CloseAsync(ModalResult.Ok(ContactPerson));
+    }
+    private async Task Cancel() => await BlazoredModal.CancelAsync();
+}
