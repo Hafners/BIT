@@ -1,0 +1,67 @@
+﻿@page "/lieferrant-overview"
+@using BIT.Data
+@using BIT.Services
+@inject LieferrantService _LieferrantService 
+
+<h3>LieferrantenOverview</h3>
+
+<div class="container">
+    <div class="row">
+        <button type="button" class="btn btn-dark" @onclick="@(async () => await CreateLieferrant())">Lieferrant hinzufügen</button>
+    </div>
+    <div class="row">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Lieferrantennr.</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Ort</th>
+                    <th scope="col">Postleitzahl</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (LieferrantItem lieferrant in _LieferrantService.Lieferrants)
+                {
+                    <tr>
+                        <td>@lieferrant.LieferrantenNummmer</td>
+                        <td>@lieferrant.Name</td>
+                        <td>@lieferrant.City</td>
+                        <td>@lieferrant.Zipcode</td>
+                        <td> <button type="button" class="btn btn-dark" @onclick="@(async () => await EditLieferrant(lieferrant.Id))">Bearbeiten</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+@code {
+    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+
+    private async Task CreateLieferant(){
+        var modalReference = Modal.Show<LieferrantenEditor>("Lieferrantenanlage");
+        var result = await modalReference.Result;
+
+        if (!result.Cancelled)
+        {
+            _LieferrantenService.AddLieferrant((LieferrantItem)result.Data!);
+            StateHasChanged();
+        }
+    }
+
+    private async Task EditLieferrant(int lieferrantId){
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(LieferrantenEditor.LieferrantId), lieferrantId);
+
+        var modalReference = Modal.Show<LieferrantenEditor>("Lieferrantenanlage", parameters);
+        var result = await modalReference.Result;
+
+        if (!result.Cancelled)
+        {
+            _LieferrantenService.UpdateLieferrant((LieferrantItem)result.Data!);
+            StateHasChanged();
+        }
+    }
+}
