@@ -1,0 +1,66 @@
+﻿@using BIT.Data
+@using BIT.Services
+
+@inject RechnungsadressService _Rechserv
+
+<h3>Rechnungsadressen Editor</h3>
+
+<form>
+    <div class="mb-3">
+        <label for="idInput" class="form-label">Id</label>
+        <input type="number" class="form-control" id="idInput" @bind="Rechadd.Id">
+    </div>
+    <div class="mb-3">
+        <label for="LandInput" class="form-label">Land</label>
+        <input type="text" class="form-control" id="LandInput" @bind="Rechadd.Land">
+    </div>
+    <div class="mb-3">
+        <label for="OrtInput" class="form-label">Ort</label>
+        <input type="text" class="form-control" id="OrtInput" @bind="Rechadd.Ort">
+    </div
+    <div class="mb-3">
+        <label for="StrasseInput" class="form-label">Strasse</label>
+        <input type="text" class="form-control" id="StrasseInput" @bind="Rechadd.Strasse">
+    </div>
+    <div class="mb-3">
+        <label for="HausnummerInput" class="form-label">Hausnummer</label>
+        <input type="text" class="form-control" id="HausnummerInput" @bind="Rechadd.hausNummer">
+    </div>
+    <div class="mb-3">
+        <label for="PLZInput" class="form-label">Postleitzahl</label>
+        <input type="text" class="form-control" id="PLZInput" @bind="Rechadd.PLZ">
+    </div>  
+    <div class="mb-3">
+        <label for="NameInput" class="form-label">Name</label>
+        <input type="text" class="form-control" id="NameInput" @bind="Rechadd.Name">
+    </div>
+    <div class="mb-3">
+        <label for="VornameInput" class="form-label">Vorname</label>
+        <input type="text" class="form-control" id="VornameInput" @bind="Rechadd.Vorname">
+    </div>    
+    <button class="btn btn-dark" @onclick="@(async()=> await SaveRechnungsadresse())">Anlegen </button>
+    <button class="btn btn-light" @onclick="Cancel">Cancel</button>
+</form>
+
+@code {
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter] public int? Rechnungsaddid { get; set; }
+
+    private Rechnungsadresse Rechadd;
+
+    protected override void OnInitialized()
+    {
+        if(Rechnungsaddid != null){
+            Rechadd = _Rechserv.GetRechnungsadresse((int)Rechnungsaddid);
+        }else{
+            Rechadd = new Rechnungsadresse();
+        }
+    }
+
+    private async Task SaveRechnungsadresse() 
+    {
+        await BlazoredModal.CloseAsync(ModalResult.Ok(Rechadd));
+    }
+    private async Task Cancel() => await BlazoredModal.CancelAsync();
+}
